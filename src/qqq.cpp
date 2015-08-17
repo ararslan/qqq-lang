@@ -24,15 +24,15 @@ typedef memory_t::iterator memory_pointer;
 struct environment {
     memory_t memory;
     instruction_t instructions;
-    
+
     instruction_pointer ip;
     memory_pointer mp;
-    
+
     environment() : memory(3000) {
         clear();
         mp = memory.begin();
     }
-    
+
     void clear() {
         instructions.clear();
         ip = instructions.begin();
@@ -48,35 +48,35 @@ void print_cell(CELL cell);
 
 
 int main(int argc, const char* argv[]) {
-    
+
     std::string filename;
-    
+
     if (argc < 2) {
         std::cout << "Enter a file:\n";
         std::cin >> filename;
     } else {
         filename = argv[1];
     }
-    
+
     std::ifstream infile = std::ifstream(filename);
-    
+
     if (infile.is_open()) {
-        
+
         environment env;
-        
+
         int unmatched_quotes = from_stream(env, infile);
-        
+
         if (unmatched_quotes == 0)
             interpret(env);
         else
             throw std::runtime_error("Um, match up your quotes and try again.");
-        
+
         infile.close();
-        
+
     } else {
         throw std::runtime_error("Input file does not exist!");
     }
-    
+
     return 0;
 }
 
@@ -85,7 +85,7 @@ int main(int argc, const char* argv[]) {
  * Prints a memory cell, or hex representation if unprintable
  */
 void print_cell(CELL cell) {
-    
+
     if (isprint(cell))
         std::cout << cell;
     else
@@ -97,9 +97,9 @@ void print_cell(CELL cell) {
  * Reads code from a line, returns number of unmatched quotes
  */
 int from_line(environment &env, std::string &line, int open_quotes) {
-    
+
     std::istringstream stream = std::istringstream(line);
-    
+
     return from_stream(env, stream, open_quotes);
 }
 
@@ -108,22 +108,20 @@ int from_line(environment &env, std::string &line, int open_quotes) {
  * Reads code from a stream into env.instructions
  */
 int from_stream(environment &env, std::istream &stream, int open_quotes) {
-    
+
     if (open_quotes == 0)
         env.instructions.push_back('\0');
-    
+
     CELL cell;
-    
-    /* BRAINSTEEL: is_open should be initialized to true (Oddly, I don't think the original interpreter
-        would catch code like '+++++]->++++<[' and would hang... */
+
     bool is_open = true;
-    
+
     while (true) {
         stream >> cell;
-        
+
         if (!stream)
             break;
-        
+
         switch (cell) {
             case '!':
             case '?':
@@ -133,53 +131,45 @@ int from_stream(environment &env, std::istream &stream, int open_quotes) {
             case ';':
                 env.instructions.push_back(cell);
                 break;
-                
+
             case '\'':
                 is_open = !is_open;
-                /*BRAINSTEEL: Consider letting the ' be *purely* a parsing construct--no literal instruction required */
-                //env.instructions.push_back(cell);
                 break;
-                
+
             case '"':
                 if (is_open) {
                     open_quotes++;
-                    /*BRAINSTEEL: Push an open bracket */
                     env.instructions.push_back('[');
-                }
-                else {
+                } else {
                     open_quotes--;
-                    /*BRAINSTEEL: Push a close bracket */
                     env.instructions.push_back(']');
                 }
                 break;
-                
+
             default:
                 break;
         }
     }
-    
+
     if (open_quotes == 0)
         env.instructions.push_back('\0');
-    
+
     return open_quotes;
 }
 
-/* BRAINSTEEL: We're using brackets in these functions, see the from_stream function */
 /*
  * Finds the closing bracket, moves the ip to it
  */
 void find_closing(environment &env)
 {
     int balance = 1;
-    do
-    {
+    do {
         env.ip++;
-        if(*env.ip == '[')
+        if (*env.ip == '[')
             balance++;
-        else if(*env.ip == ']')
+        else if (*env.ip == ']')
             balance--;
-        
-    }while(balance != 0);
+    } while (balance != 0);
 }
 
 /*
@@ -188,80 +178,70 @@ void find_closing(environment &env)
 void find_opening(environment &env)
 {
     int balance = 0;
-    do
-    {
-        if(*env.ip == '[')
+    do {
+        if (*env.ip == '[')
             balance++;
-        else if(*env.ip == ']')
+        else if (*env.ip == ']')
             balance--;
         env.ip--;
-    }while(balance != 0);
+    } while (balance != 0);
 }
 
 /*
  * Interprets code
  */
 void interpret(environment &env) {
-    
+
     env.ip = env.instructions.begin();
-    
-    // BRAINSTEEL: We don't need this value anymore
-    //bool open_quote = false;
-    
+
     while (env.ip != env.instructions.end()) {
-        
+
         switch (*env.ip) {
             case '.':
                 (*env.mp)++;
                 env.ip++;
                 break;
-                
+
             case ',':
                 (*env.mp)--;
                 env.ip++;
                 break;
-                
+
             case ';':
                 if (env.mp != (env.memory.end()--))
                     env.mp++;
                 env.ip++;
                 break;
-                
+
             case '-':
                 if (env.mp != env.memory.begin())
                     env.mp--;
                 env.ip++;
                 break;
-                
+
             case '!':
                 print_cell(*env.mp);
                 env.ip++;
                 break;
-                
+
             case '?':
                 CELL cell;
                 std::cin >> cell;
                 (*env.mp) = cell;
                 env.ip++;
                 break;
-                
-            /*
-            case '\'':
-                open_quote = !open_quote;
-                break;
-            */
-                
-                /* BRAINSTEEL: Since we now explicitly push open and close brackets, we pretend those " never existed */
+
             case '[':
-                if(!(*env.mp))
+                if (!(*env.mp))
                     find_closing(env);
                 env.ip++;
                 break;
+
             case ']':
                 find_opening(env);
                 env.ip++;
                 break;
-                
+
             case '\0':
                 env.ip++;
                 break;

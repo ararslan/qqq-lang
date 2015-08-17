@@ -58,7 +58,7 @@ int main(int argc, const char* argv[]) {
         filename = argv[1];
     }
 
-    std::ifstream infile = std::ifstream(filename);
+    std::ifstream infile(filename);
 
     if (infile.is_open()) {
 
@@ -98,7 +98,7 @@ void print_cell(CELL cell) {
  */
 int from_line(environment &env, std::string &line, int open_quotes) {
 
-    std::istringstream stream = std::istringstream(line);
+    std::istringstream stream(line);
 
     return from_stream(env, stream, open_quotes);
 }

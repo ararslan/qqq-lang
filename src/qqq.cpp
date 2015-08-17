@@ -114,7 +114,9 @@ int from_stream(environment &env, std::istream &stream, int open_quotes) {
     
     CELL cell;
     
-    bool is_open = false;
+    /* BRAINSTEEL: is_open should be initialized to true (Oddly, I don't think the original interpreter
+        would catch code like '+++++]->++++<[' and would hang... */
+    bool is_open = true;
     
     while (true) {
         stream >> cell;
@@ -134,15 +136,21 @@ int from_stream(environment &env, std::istream &stream, int open_quotes) {
                 
             case '\'':
                 is_open = !is_open;
-                env.instructions.push_back(cell);
+                /*BRAINSTEEL: Consider letting the ' be *purely* a parsing construct--no literal instruction required */
+                //env.instructions.push_back(cell);
                 break;
                 
             case '"':
-                if (is_open)
+                if (is_open) {
                     open_quotes++;
-                else
+                    /*BRAINSTEEL: Push an open bracket */
+                    env.instructions.push_back('[');
+                }
+                else {
                     open_quotes--;
-                env.instructions.push_back(cell);
+                    /*BRAINSTEEL: Push a close bracket */
+                    env.instructions.push_back(']');
+                }
                 break;
                 
             default:
@@ -156,46 +164,39 @@ int from_stream(environment &env, std::istream &stream, int open_quotes) {
     return open_quotes;
 }
 
-
+/* BRAINSTEEL: We're using brackets in these functions, see the from_stream function */
 /*
- * Finds the closing quote, moves instruction pointer to it
+ * Finds the closing bracket, moves the ip to it
  */
-void find_closing(environment &env) {
+void find_closing(environment &env)
+{
     int balance = 1;
-    bool is_open = true;
-    do {
+    do
+    {
         env.ip++;
-        if (*env.ip == '\'')
-            is_open = !is_open;
-        if (*env.ip == '"') {
-            if (is_open)
-                balance++;
-            else
-                balance--;
-        }
-    } while (balance != 0);
+        if(*env.ip == '[')
+            balance++;
+        else if(*env.ip == ']')
+            balance--;
+        
+    }while(balance != 0);
 }
-
 
 /*
- * Finds opening quote, moves instruction pointer to it
+ * Finds the opening bracket, moves the ip to one cell before it
  */
-void find_opening(environment &env) {
+void find_opening(environment &env)
+{
     int balance = 0;
-    bool is_open = false;
-    do {
-        if (*env.ip == '\'')
-            is_open = !is_open;
-        if (*env.ip == '"') {
-            if (is_open)
-                balance++;
-            else
-                balance--;
-        }
+    do
+    {
+        if(*env.ip == '[')
+            balance++;
+        else if(*env.ip == ']')
+            balance--;
         env.ip--;
-    } while (balance != 0);
+    }while(balance != 0);
 }
-
 
 /*
  * Interprets code
@@ -204,7 +205,8 @@ void interpret(environment &env) {
     
     env.ip = env.instructions.begin();
     
-    bool open_quote = false;
+    // BRAINSTEEL: We don't need this value anymore
+    //bool open_quote = false;
     
     while (env.ip != env.instructions.end()) {
         
@@ -243,15 +245,20 @@ void interpret(environment &env) {
                 env.ip++;
                 break;
                 
+            /*
             case '\'':
                 open_quote = !open_quote;
                 break;
+            */
                 
-            case '"':
-                if (open_quote && !(*env.mp))
+                /* BRAINSTEEL: Since we now explicitly push open and close brackets, we pretend those " never existed */
+            case '[':
+                if(!(*env.mp))
                     find_closing(env);
-                else
-                    find_opening(env);
+                env.ip++;
+                break;
+            case ']':
+                find_opening(env);
                 env.ip++;
                 break;
                 

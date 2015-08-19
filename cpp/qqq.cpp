@@ -58,7 +58,7 @@ int main(int argc, const char* argv[]) {
         filename = argv[1];
     }
 
-    std::ifstream infile(filename);
+    std::ifstream infile(filename.c_str());
 
     if (infile.is_open()) {
 
@@ -157,11 +157,11 @@ int from_stream(environment &env, std::istream &stream, int open_quotes) {
     return open_quotes;
 }
 
+
 /*
  * Finds the closing bracket, moves the ip to it
  */
-void find_closing(environment &env)
-{
+void find_closing(environment &env) {
     int balance = 1;
     do {
         env.ip++;
@@ -172,11 +172,11 @@ void find_closing(environment &env)
     } while (balance != 0);
 }
 
+
 /*
  * Finds the opening bracket, moves the ip to one cell before it
  */
-void find_opening(environment &env)
-{
+void find_opening(environment &env) {
     int balance = 0;
     do {
         if (*env.ip == '[')
@@ -186,6 +186,7 @@ void find_opening(environment &env)
         env.ip--;
     } while (balance != 0);
 }
+
 
 /*
  * Interprets code

@@ -21,6 +21,8 @@ Well now you can.
 | `"`     | Jump to the matching `"` if the cell under the pointer is 0 |
 | `'`     | Toggles whether subsequent `"` commands start or end a loop |
 
+Initially, `"` begins a loop.
+
 ### Notes
 
 The creators of the language would like to extend a special thank you to Stack Exchange users **aditsu**, **Doorknob**, **Reto Koradi**, and **Martin Büttner** for inspiration and suggesting improvements/fixes.

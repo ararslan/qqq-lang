@@ -6,7 +6,14 @@ Well now you can.
 
 ### Overview
 
-??? is a trivial [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) substitution, meaning that a trivial replacement of operators will result in an equivalent BF program. Unsurprisingly, this means that ??? works the same way as BF: it operates on an array of memory cells (also called the tape), each initially set to 0, and has a pointer initially pointing to the first memory cell. It also means that it's a Turing complete language.
+??? is a trivial [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) substitution, meaning that a trivial replacement of operators will result in an equivalent BF program.
+Unsurprisingly, this means that ??? works the same way as BF: It operates on an array of memory cells (also called the tape), each initially set to 0, and has a pointer initially pointing to the first memory cell.
+It also means that it's a Turing complete language.
+
+There are only three distinctions between how BF and ??? work in practice:
+* In ???, traveling left of the starting cell is a no-op.
+* In BF, loops are constructed using `[` and `]`. ??? uses a single character for loop boundaries, namely `"`, with `'` as a toggle between open and closed.
+* When printing to STDOUT, ??? prints unprintable characters using their hex representations. Printable characters appear normally.
 
 ### Commands
 

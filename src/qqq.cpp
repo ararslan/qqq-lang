@@ -66,15 +66,18 @@ int main(int argc, const char* argv[]) {
 
         int unmatched_quotes = from_stream(env, infile);
 
-        if (unmatched_quotes == 0)
+        if (unmatched_quotes == 0) {
             interpret(env);
-        else
-            throw std::runtime_error("Um, match up your quotes and try again.");
+        } else {
+            std::cerr << "Um, match up your quotes and try again.\n";
+            return 1;
+        }
 
         infile.close();
 
     } else {
-        throw std::runtime_error("Input file does not exist!");
+        std::cerr << "Input file does not exist!\n";
+        return 1;
     }
 
     return 0;
@@ -149,6 +152,9 @@ int from_stream(environment &env, std::istream &stream, int open_quotes) {
             default:
                 break;
         }
+
+        if (open_quotes < 0)
+            break;
     }
 
     if (open_quotes == 0)

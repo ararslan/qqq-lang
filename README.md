@@ -32,4 +32,4 @@ Initially, `"` begins a loop.
 
 ### Notes
 
-The creators of the language would like to extend a special thank you to Stack Exchange users **aditsu**, **Doorknob**, **Reto Koradi**, and **Martin Büttner** for inspiration and suggesting improvements/fixes.
+The creators of the language would like to extend a special thank you to Stack Exchange users **aditsu**, **Doorknob**, **Reto Koradi**, and **Martin Ender** for inspiration and suggesting improvements/fixes.

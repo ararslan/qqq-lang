@@ -62,34 +62,32 @@ fn evaluate(instructions: Vec<char>) {
                 print!("{}", tape[mem_ptr] as char);
                 std::io::stdout().flush().unwrap();
             },
-            '[' => {
-                if tape[mem_ptr] == 0x00 {
-                    let mut balance = 1;
-                    // find the corresponding closing bracket, move the ip to it
-                    loop {
-                        ins_ptr += 1;
-                        if instructions[ins_ptr] == '[' {
-                            balance += 1
-                        } else if instructions[ins_ptr] == ']' {
-                            balance -= 1
-                        }
-                        if balance == 0 { break }
-                    }
-                }
-            },
-            ']' => {
-                let mut balance = 0;
-                // find the corresponding opening bracket, move the ip just before it
+            '[' if tape[mem_ptr] == 0x00 => {
+                let mut balance = 1;
+                // find the corresponding closing bracket, move the ip to it
                 loop {
+                    ins_ptr += 1;
                     if instructions[ins_ptr] == '[' {
                         balance += 1
                     } else if instructions[ins_ptr] == ']' {
                         balance -= 1
                     }
-                    ins_ptr -= 1;
                     if balance == 0 { break }
                 }
-            }
+            },
+            ']' if tape[mem_ptr] != 0x00 => {
+                let mut balance = 1;
+                // find the corresponding opening bracket, move the ip just before it
+                loop {
+                    if instructions[ins_ptr] == '[' {
+                        balance -= 1
+                    } else if instructions[ins_ptr] == ']' {
+                        balance += 1
+                    }
+                    // ins_ptr -= 1;
+                    if balance == 0 { break }
+                }
+            },
             _ => unreachable!(),
         }
         ins_ptr += 1
